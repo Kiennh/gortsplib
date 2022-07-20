@@ -286,17 +286,17 @@ func (d *DTSExtractor) Extract(nalus [][]byte, pts time.Duration) (time.Duration
 		return 0, err
 	}
 
-	if dts > pts {
-		return 0, fmt.Errorf("DTS is greater than PTS")
-	}
-
-	if d.prevDTS != nil && dts <= *d.prevDTS {
-		return 0, fmt.Errorf("DTS is not monotonically increasing (was %v, now is %v)",
-			*d.prevDTS, dts)
-	}
-
 	d.prevPTS = pts
 	d.prevDTS = &dts
 	d.prevPOCDiff = pocDiff
+
+	if dts > pts {
+		err = fmt.Errorf("DTS is greater than PTS")
+	}
+
+	if d.prevDTS != nil && dts <= *d.prevDTS {
+		err = fmt.Errorf("DTS is not monotonically increasing (was %v, now is %v)", *d.prevDTS, dts)
+	}
+
 	return dts, err
 }
